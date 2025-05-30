@@ -1,0 +1,97 @@
+# In order to execute the scripts in this file, make sure that you are in the "traffic" directory
+
+# All Benign (normal) & All internal -> h[Y], h[Y+1], h[Y+2]
+# External Attack -> h[Y], h[Y+1], h[Y+2], h[Y+3], h[Y+4]
+
+--------------------------------- Utilities ----------------------------------
+
+# command to kill all (running) traffic sending python processes (use with caution)
+ps aux | grep -v grep | grep send | awk ' { print $2 } ' | sudo xargs kill -9  
+
+--------------------------------- Preparation -------------------------------
+
+# Must be executed before any traffic sending scripts in rule-based P4,
+# otherwise all internal traffic will be dropped by the internal spoofing module
+# regardless if it was an attack or not.
+sudo ./run_dad_send.sh h101
+
+
+--------------------------------- Internal Flooding----------------------------
+
+# run_ext_normal h[Y] and run_int_normal h[Y] will run on h[Y], h[Y+1], h[Y+2]
+sudo ./run_ext_normal.sh h12
+sudo ./run_ext_normal.sh h32
+sudo ./run_ext_normal.sh h52
+sudo ./run_ext_normal.sh h72
+sudo ./run_ext_normal.sh h92
+sudo ./run_int_flood_tcp.sh h101
+# wait ~3 seconds
+sudo ./run_int_flood_tcp.sh h104
+# wait ~3 seconds
+sudo ./run_int_flood.sh h101
+# wait ~3 seconds
+sudo ./run_int_flood.sh h104
+
+
+--------------------------------- External Flooding---------------------------
+sudo ./run_ext_normal.sh h3
+sudo ./run_ext_normal.sh h23
+sudo ./run_ext_normal.sh h43
+sudo ./run_ext_normal.sh h63
+sudo ./run_ext_normal.sh h83
+sudo ./run_int_normal_ndp.sh h101
+sudo ./run_int_normal_ndp.sh h104
+sudo ./run_int_normal_tcp.sh h101
+sudo ./run_int_normal_tcp.sh h104
+sudo ./run_ext_flood.sh h10
+# wait ~3 seconds
+sudo ./run_ext_flood.sh h30
+# wait ~3 seconds
+sudo ./run_ext_flood.sh h50
+# wait ~3 seconds
+sudo ./run_ext_flood.sh h70
+
+
+----------------------------------- External Spoofed Flooding -------------------------------
+sudo ./run_ext_normal.sh h9
+sudo ./run_ext_normal.sh h29
+sudo ./run_ext_normal.sh h49
+sudo ./run_ext_normal.sh h69
+sudo ./run_ext_normal.sh h89
+sudo ./run_int_normal_ndp.sh h101
+sudo ./run_int_normal_ndp.sh h104
+sudo ./run_int_normal_tcp.sh h101
+sudo ./run_int_normal_tcp.sh h104
+sudo ./run_ext_spoofed_flood.sh h20
+# wait ~3 seconds
+sudo ./run_ext_spoofed_flood.sh h40
+# wait ~3 seconds
+sudo ./run_ext_spoofed_flood.sh h60
+# wait ~3 seconds
+sudo ./run_ext_spoofed_flood.sh h80
+
+
+---------------------------------- Internal Spoofing -----------------------
+sudo ./run_ext_normal.sh h15
+sudo ./run_ext_normal.sh h35
+sudo ./run_ext_normal.sh h55
+sudo ./run_ext_normal.sh h75
+sudo ./run_ext_normal.sh h95
+sudo ./run_int_spoof.sh h101
+sudo ./run_int_spoof.sh h104
+
+
+---------------------------------- External Spoofing-----------------------------------
+sudo ./run_ext_normal.sh h6
+sudo ./run_ext_normal.sh h26
+sudo ./run_ext_normal.sh h46
+sudo ./run_ext_normal.sh h66
+sudo ./run_ext_normal.sh h86
+sudo ./run_int_normal_ndp.sh h101
+sudo ./run_int_normal_ndp.sh h104
+sudo ./run_int_normal_tcp.sh h101
+sudo ./run_int_normal_tcp.sh h104
+sudo ./run_ext_spoof.sh h15
+sudo ./run_ext_spoof.sh h35
+sudo ./run_ext_spoof.sh h55
+sudo ./run_ext_spoof.sh h75
